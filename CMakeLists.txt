@@ -3,6 +3,8 @@ include(FetchContent)
 
 project(vulkan-starter-app LANGUAGES C CXX)
 
+add_compile_definitions(VkReleaseSwapchainImagesInfoKHR=VkReleaseSwapchainImagesInfoEXT)
+
 add_executable(${PROJECT_NAME} source/main.cpp source/graphics_internal.cpp source/application.cpp)
 
 if(LINUX)
@@ -26,9 +28,16 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-	vk-bootstrap
-	GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
-	GIT_TAG v1.4.321
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG        0.9.9.8 
+)
+FetchContent_MakeAvailable(glm)
+
+FetchContent_Declare(
+    vk-bootstrap
+    GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
+    GIT_TAG v1.4.321
 )
 
 FetchContent_Declare(
@@ -62,6 +71,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	Vulkan::Vulkan
 	vk-bootstrap::vk-bootstrap
 	GPUOpen::VulkanMemoryAllocator
+	glm::glm
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
@@ -95,11 +105,8 @@ if(GLSLC_FOUND)
 		list(APPEND _SHADER_BINARIES ${SHADER_BINARY_PATH})
 	endmacro()
 
-	# To compile shader file, use compile_shader function with a file name
-	# of a shader inside shaders directory. See example below:
-
-	# compile_shader(example.vert)
-	# compile_shader(example.frag)
+	compile_shader(shader.vert)
+	compile_shader(shader.frag)
 
 	add_custom_target(shaders DEPENDS ${_SHADER_BINARIES})
 	add_dependencies(${PROJECT_NAME} shaders)
